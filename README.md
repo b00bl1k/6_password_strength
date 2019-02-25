@@ -7,7 +7,7 @@ The script asks for a password and gives it a rating from 1 to 10 where:
 # Example of usage
 
 ```bash
-$ python password_strength.py
+$ python password_strength.py blacklist.txt
 Enter password:
 Password strength: 7/10
 ```

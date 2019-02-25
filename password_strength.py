@@ -8,13 +8,14 @@ PASSWORD_MIN_LENGTH = 8
 PASSWORD_MAX_LENGTH = 14
 PASSWORD_LENGTH_SCORE = 5
 PASSWORD_DEFAULT_SCORE = 1
-PASSWORD_BLACKLIST_WORDS = [
-    "admin",
-    "root",
-    "default",
-    "guest",
-    "password"
-]
+
+
+def load_blacklist(filepath):
+    try:
+        with open(filepath, "r", encoding="utf8") as fh:
+            return [word.strip().lower() for word in fh.readlines()]
+    except FileNotFoundError:
+        sys.exit("Blacklist file not found!")
 
 
 def is_password_use_lower_alpha(password):
@@ -33,9 +34,9 @@ def is_password_use_spec_symbols(password):
     return any(not symbol.isalnum() for symbol in password)
 
 
-def is_password_contain_blacklist_words(password):
+def is_password_contain_bl_words(password, blacklist):
     lower_password = password.lower()
-    return not any(word in lower_password for word in PASSWORD_BLACKLIST_WORDS)
+    return not any(word in lower_password for word in blacklist)
 
 
 def is_password_recommended_length(password):
@@ -51,16 +52,16 @@ def is_password_recommended_length(password):
     return (pwd_len - PASSWORD_MIN_LENGTH) * PASSWORD_LENGTH_SCORE // len_range
 
 
-def get_password_strength(password):
+def get_password_strength(password, blacklist):
     checks = (
         (is_password_use_lower_alpha, PASSWORD_DEFAULT_SCORE),
         (is_password_use_upper_alpha, PASSWORD_DEFAULT_SCORE),
         (is_password_use_digits, PASSWORD_DEFAULT_SCORE),
         (is_password_use_spec_symbols, PASSWORD_DEFAULT_SCORE),
-        (is_password_contain_blacklist_words, PASSWORD_DEFAULT_SCORE),
+        (is_password_contain_bl_words, PASSWORD_DEFAULT_SCORE, blacklist),
         (is_password_recommended_length, PASSWORD_LENGTH_SCORE)
     )
-    score = sum(map(lambda fn: fn[0](password), checks))
+    score = sum(map(lambda fn: fn[0](password, *fn[2:]), checks))
     score_max = sum(map(lambda fn: fn[1], checks))
 
     strength_range = (PASSWORD_STRENGTH_MAX - PASSWORD_STRENGTH_MIN)
@@ -68,10 +69,15 @@ def get_password_strength(password):
 
 
 def main():
+    try:
+        blacklist = load_blacklist(sys.argv[1])
+    except IndexError:
+        blacklist = []
+        print("Blacklist file is not specified!")
     password = getpass.getpass()
     if not password:
         sys.exit("Password is empty")
-    strength = get_password_strength(password)
+    strength = get_password_strength(password, blacklist)
     print("Password strength: {}/{}".format(strength, PASSWORD_STRENGTH_MAX))
 
 
