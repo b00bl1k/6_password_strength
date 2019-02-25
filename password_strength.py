@@ -11,11 +11,8 @@ PASSWORD_DEFAULT_SCORE = 1
 
 
 def load_blacklist(filepath):
-    try:
-        with open(filepath, "r", encoding="utf8") as fh:
-            return [word.strip().lower() for word in fh.readlines()]
-    except FileNotFoundError:
-        sys.exit("Blacklist file not found!")
+    with open(filepath, "r", encoding="utf8") as fh:
+        return [word.strip().lower() for word in fh.readlines()]
 
 
 def is_password_use_lower_alpha(password):
@@ -74,6 +71,8 @@ def main():
     except IndexError:
         blacklist = []
         print("Blacklist file is not specified!")
+    except FileNotFoundError:
+        sys.exit("Blacklist file is not found!")
     password = getpass.getpass()
     if not password:
         sys.exit("Password is empty")
