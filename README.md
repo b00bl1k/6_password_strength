@@ -8,7 +8,7 @@ The script asks for a password and gives it a rating from 1 to 10 where:
 
 ```bash
 $ python password_strength.py
-Enter password: kg73Adb&sb2
+Enter password:
 Password strength: 7/10
 ```
 

@@ -1,3 +1,4 @@
+import getpass
 import sys
 
 
@@ -67,7 +68,7 @@ def get_password_strength(password):
 
 
 def main():
-    password = input("Enter password: ").strip()
+    password = getpass.getpass()
     if not password:
         sys.exit("Password is empty")
     strength = get_password_strength(password)
